@@ -1,13 +1,14 @@
 
 CONTENTS
-    1. Setup                           
-    2.  Data validation                
-    3. Revenue and performance analysis
+1. Table Creation                           
+2. Data validation                
+3. Revenue and performance analysis
+4. Key Performance Indicators (KPI)
                                 
 
-SETUP
+TABLE CREATION
 
-Here, the schema was created, the tables were created and inserted
+Here, the schema was created, and the tables were created and inserted
 
 CREATE CATALOG IF NOT EXISTS practice;
 CREATE SCHEMA  IF NOT EXISTS practice.retail;
@@ -131,7 +132,8 @@ INSERT INTO order_items VALUES
 (18, 1013, 109, 1, 69.99),
 (19, 1014, 103, 1, 249.99),
 (20, 1015, 111, 1, 39.99);
- 
+
+--View of tables in the warehouse
 SHOW TABLES;
 
 DATA VALIDATION
@@ -173,13 +175,13 @@ FROM orders
 GROUP BY order_id
 HAVING COUNT(*) > 1;
  
--- 1e. Order status values to confirm the only three expected values: completed, returned, and cancelled.
+-- 1e. Order status values to confirm the three expected values: completed, returned, and cancelled.
 SELECT DISTINCT status FROM orders;
 
  
   QUERIES - REVENUE AND PERFORMANCE ANALYSIS
  
-1. Which premium products over $100 do we sell?
+1. Which premium products over $100 do we sell? Sorted from most to least expensive.
 SELECT product_id, product_name, price
 FROM products
 WHERE price > 100
@@ -190,7 +192,7 @@ SELECT customer_id, CONCAT(first_name, ' ', last_name) AS full_name, email, city
 FROM customers
 WHERE state IN ('TX', 'CO');
  
-3. Which products are out of stock right now?
+3. Which products are out of stock right now? (with stock_quantity = 0)
 SELECT product_id, product_name, stock_quantity
 FROM products
 WHERE stock_quantity = 0;
@@ -200,13 +202,13 @@ SELECT order_id, customer_id, order_date, status
 FROM orders
 WHERE order_date >= '2024-03-01' AND order_date < '2024-04-01';
  
-5. Give the Electronics team a readable product list
+5. Give the Electronics team a readable product list - all products in the "Electronics" category
 SELECT p.product_id, p.product_name, c.category_name, p.price
 FROM products p
 JOIN categories c ON p.category_id = c.category_id
 WHERE c.category_name = 'Electronics';
  
-6. For every order placed, provide full details covering who, when, and status/what happened
+6. For every order placed, provide full details showing the customer's full name, the order date, and the order status.
 SELECT o.order_id,
        CONCAT(c.first_name, ' ', c.last_name) AS full_name,
        o.order_date,
@@ -249,7 +251,7 @@ WHERE o.status = 'completed'
 GROUP BY p.product_name
 ORDER BY revenue DESC;
 
-Insight: Stand Mixer is the top earner ($499.98 from just 2 units). The Mystery
+Insights: Stand Mixer is the top earner ($499.98 from just 2 units). The Mystery
 Novel sells the most units (5) but earns only $74.95 because of its low price. 
 This sales data shows that volume and revenue tell different stories. 
 From the analysis, Stand Mixer is the top earner with $499.98 from just 2 units. 
@@ -300,7 +302,7 @@ WHERE o.order_id IS NULL;
 
 Insight: Zoe Patel.
  
-E. Customer segmentation (CASE logic)
+E. Customer segmentation using CASE logic
 
 WITH customer_value AS (
   SELECT c.customer_id,
