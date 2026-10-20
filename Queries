@@ -3,10 +3,7 @@ CONTENTS
     1. Setup                           
     2.  Data validation                
     3. Revenue and performance analysis
-                                    
-
- 
- 
+                                
 
 SETUP
 
@@ -136,8 +133,6 @@ INSERT INTO order_items VALUES
 (20, 1015, 111, 1, 39.99);
  
 SHOW TABLES;
- 
- 
 
 DATA VALIDATION
 
@@ -180,7 +175,7 @@ HAVING COUNT(*) > 1;
  
 -- 1e. Order status values to confirm the only three expected values: completed, returned, and cancelled.
 SELECT DISTINCT status FROM orders;
- 
+
  
   QUERIES - REVENUE AND PERFORMANCE ANALYSIS
  
@@ -281,7 +276,6 @@ ORDER BY month;
 Insight: The monthly MOM are Feb -25.2%, Mar +45.5%, Apr -42.9%. 
 March has only the peak value of $559.90, and this proves how volatile the revenue is, as just one large changed the month,
 
- 
 D. Revenue by state
 SELECT c.state,
        SUM(oi.quantity * oi.unit_price) AS revenue
@@ -295,7 +289,6 @@ ORDER BY revenue DESC;
 Insight: The highest order value is from Colorado with $549.96, driven by Liam Garcia. On the other hand, Florida is the weakest
 with a value of $69.99 because Sophia's only order was returned.
 
- 
  E. Customers who have never placed an order 
 SELECT c.customer_id,
        CONCAT(c.first_name, ' ', c.last_name) AS full_name,
