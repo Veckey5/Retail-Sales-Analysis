@@ -1,6 +1,6 @@
 **RETAIL SALES ANALYSIS (DATABRICKS SQL)**
 
-An end-to-end SQL analysis of a  online retailer's sales data. I built the schema, validated the data, and answered the questions a business team would ask about revenue, customers, and operational losses.
+An end-to-end SQL analysis of an online retailer's sales data. I built the schema, validated the data, and answered the questions a business team would ask about revenue, customers, and operational losses.
 
 Tools: Databricks SQL, Unity Catalog, Delta tables 
 SQL skills: joins (inner, left, anti), aggregations, CTEs, window functions (LAG, RANK, SUM() OVER), CASE segmentation, views, data validation
@@ -39,8 +39,7 @@ and whether the price charged matched the catalog price. All checks passed, with
 6.	Bluetooth Speaker is out of stock despite proven demand; the orders details shows that 2 units were sold in a completed order
 7.	3 customers have no completed purchase and are a ready-made win-back list
 8.	Only 37.5% of buying customers ordered more than once
-
-Revenue swings sharply from month to month. With only 12 orders, a single large order moves the number, so this is directional rather than conclusive.
+9. Revenue swings sharply from month to month. With only 12 orders, a single large order moves the number, so this is directional rather than conclusive.
 
 **RECOMMENDATIONS**
 
