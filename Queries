@@ -1,0 +1,350 @@
+/* 
+CONTENTS
+    1. Setup                           
+    2.  Data validation                
+    3. Revenue and performance analysis
+                                    
+*/
+ 
+ 
+/*
+SETUP
+*/
+Here, the schema was created, the tables were created and inserted
+
+CREATE CATALOG IF NOT EXISTS practice;
+CREATE SCHEMA  IF NOT EXISTS practice.retail;
+USE CATALOG practice;
+USE SCHEMA retail;
+ 
+-- CATEGORIES
+CREATE OR REPLACE TABLE categories (
+  category_id   INT,
+  category_name STRING,
+  description   STRING
+);
+ 
+INSERT INTO categories VALUES
+(1, 'Electronics',       'Gadgets and devices'),
+(2, 'Home & Kitchen',    'Household and kitchen items'),
+(3, 'Books',             'Physical and digital books'),
+(4, 'Sports & Outdoors', 'Sporting goods and outdoor gear'),
+(5, 'Clothing',          'Apparel and accessories');
+ 
+-- CUSTOMERS
+CREATE OR REPLACE TABLE customers (
+  customer_id INT,
+  first_name  STRING,
+  last_name   STRING,
+  email       STRING,
+  city        STRING,
+  state       STRING,
+  signup_date DATE
+);
+ 
+INSERT INTO customers VALUES
+(1,  'Ava',      'Thompson',  'ava.t@email.com',      'Austin',   'TX', '2023-01-15'),
+(2,  'Liam',     'Garcia',    'liam.g@email.com',     'Denver',   'CO', '2023-02-20'),
+(3,  'Noah',     'Kim',       'noah.k@email.com',     'Seattle',  'WA', '2023-03-05'),
+(4,  'Emma',     'Davis',     'emma.d@email.com',     'Austin',   'TX', '2023-03-22'),
+(5,  'Olivia',   'Martinez',  'olivia.m@email.com',   'Chicago',  'IL', '2023-04-10'),
+(6,  'Ethan',    'Brown',     'ethan.b@email.com',    'Denver',   'CO', '2023-05-01'),
+(7,  'Sophia',   'Wilson',    'sophia.w@email.com',   'Miami',    'FL', '2023-06-14'),
+(8,  'Mason',    'Lee',       'mason.l@email.com',    'Seattle',  'WA', '2023-07-30'),
+(9,  'Isabella', 'Clark',     'isabella.c@email.com', 'Chicago',  'IL', '2023-08-19'),
+(10, 'James',    'Rodriguez', 'james.r@email.com',    'Miami',    'FL', '2023-09-25'),
+-- Added so the "never ordered" analysis has a real result:
+(11, 'Zoe',      'Patel',     'zoe.p@email.com',      'New York', 'NY', '2023-10-12');
+ 
+-- PRODUCTS
+CREATE OR REPLACE TABLE products (
+  product_id     INT,
+  product_name   STRING,
+  category_id    INT,
+  price          DECIMAL(10,2),
+  stock_quantity INT
+);
+ 
+INSERT INTO products VALUES
+(101, 'Wireless Earbuds',                 1, 79.99,  150),
+(102, '4K Streaming Stick',               1, 49.99,  200),
+(103, 'Stand Mixer',                      2, 249.99, 40),
+(104, 'Nonstick Pan Set',                 2, 89.99,  75),
+(105, 'Mystery Novel: The Quiet Hour',    3, 14.99,  300),
+(106, 'Cookbook: Weeknight Dinners',      3, 24.99,  120),
+(107, 'Yoga Mat',                         4, 29.99,  180),
+(108, 'Camping Tent (4-person)',          4, 159.99, 60),
+(109, 'Men''s Running Shoes',             5, 69.99,  110),
+(110, 'Women''s Winter Jacket',           5, 129.99, 90),
+(111, 'Bluetooth Speaker',                1, 39.99,  0),
+(112, 'Espresso Machine',                 2, 199.99, 25);
+ 
+-- ORDERS
+CREATE OR REPLACE TABLE orders (
+  order_id    INT,
+  customer_id INT,
+  order_date  DATE,
+  status      STRING
+);
+ 
+INSERT INTO orders VALUES
+(1001, 1,  '2024-01-05', 'completed'),
+(1002, 2,  '2024-01-08', 'completed'),
+(1003, 1,  '2024-01-20', 'completed'),
+(1004, 3,  '2024-02-01', 'completed'),
+(1005, 4,  '2024-02-10', 'cancelled'),
+(1006, 5,  '2024-02-14', 'completed'),
+(1007, 6,  '2024-02-18', 'completed'),
+(1008, 2,  '2024-03-01', 'completed'),
+(1009, 7,  '2024-03-05', 'returned'),
+(1010, 8,  '2024-03-12', 'completed'),
+(1011, 9,  '2024-03-20', 'completed'),
+(1012, 1,  '2024-03-25', 'completed'),
+(1013, 10, '2024-04-02', 'completed'),
+(1014, 3,  '2024-04-08', 'completed'),
+(1015, 5,  '2024-04-15', 'cancelled');
+ 
+-- ORDER_ITEMS
+CREATE OR REPLACE TABLE order_items (
+  order_item_id INT,
+  order_id      INT,
+  product_id    INT,
+  quantity      INT,
+  unit_price    DECIMAL(10,2)
+);
+ 
+INSERT INTO order_items VALUES
+(1,  1001, 101, 2, 79.99),
+(2,  1001, 105, 1, 14.99),
+(3,  1002, 103, 1, 249.99),
+(4,  1003, 107, 3, 29.99),
+(5,  1004, 102, 1, 49.99),
+(6,  1004, 111, 2, 39.99),
+(7,  1005, 108, 1, 159.99),
+(8,  1006, 109, 2, 69.99),
+(9,  1006, 106, 1, 24.99),
+(10, 1007, 104, 1, 89.99),
+(11, 1008, 101, 1, 79.99),
+(12, 1008, 110, 1, 129.99),
+(13, 1009, 112, 1, 199.99),
+(14, 1010, 105, 4, 14.99),
+(15, 1011, 107, 1, 29.99),
+(16, 1011, 108, 1, 159.99),
+(17, 1012, 102, 2, 49.99),
+(18, 1013, 109, 1, 69.99),
+(19, 1014, 103, 1, 249.99),
+(20, 1015, 111, 1, 39.99);
+ 
+SHOW TABLES;
+ 
+ 
+/*
+  DATA VALIDATION
+ In this stage of my analysis, I checked the data before analyzing it. This includes row counts, duplicates and price inconsistencies.
+*/
+ 
+-- 1a. Row counts per table
+SELECT 'categories'  AS table_name, COUNT(*) AS row_count FROM categories
+UNION ALL SELECT 'customers',   COUNT(*) FROM customers
+UNION ALL SELECT 'products',    COUNT(*) FROM products
+UNION ALL SELECT 'orders',      COUNT(*) FROM orders
+UNION ALL SELECT 'order_items', COUNT(*) FROM order_items;
+ 
+-- 1b. Orphaned foreign keys (every query below should return 0 rows)
+SELECT o.order_id, o.customer_id
+FROM orders o
+LEFT JOIN customers c ON o.customer_id = c.customer_id
+WHERE c.customer_id IS NULL;
+ 
+SELECT oi.order_item_id, oi.order_id
+FROM order_items oi
+LEFT JOIN orders o ON oi.order_id = o.order_id
+WHERE o.order_id IS NULL;
+ 
+SELECT oi.order_item_id, oi.product_id
+FROM order_items oi
+LEFT JOIN products p ON oi.product_id = p.product_id
+WHERE p.product_id IS NULL;
+ 
+-- 1c. Price consistency: does the price charged match the catalog price? If a mismatch exists, then there's a discount or a price change that should be investigated.
+SELECT oi.order_item_id, oi.unit_price AS charged_price, p.price AS catalog_price
+FROM order_items oi
+JOIN products p ON oi.product_id = p.product_id
+WHERE oi.unit_price <> p.price;
+ 
+-- 1d. Duplicate primary keys (should return 0 rows)
+SELECT order_id, COUNT(*) AS dupes
+FROM orders
+GROUP BY order_id
+HAVING COUNT(*) > 1;
+ 
+-- 1e. Order status values to confirm the only three expected values: completed, returned, and cancelled.
+SELECT DISTINCT status FROM orders;
+ 
+ 
+/*
+  QUERIES - REVENUE AND PERFORMANCE ANALYSIS
+ 
+*/
+ 
+1. Which premium products over $100 do we sell?
+SELECT product_id, product_name, price
+FROM products
+WHERE price > 100
+ORDER BY price DESC;
+ 
+2. Provide the regional manager with a contact list for the TX and CO markets.
+SELECT customer_id, CONCAT(first_name, ' ', last_name) AS full_name, email, city, state
+FROM customers
+WHERE state IN ('TX', 'CO');
+ 
+3. Which products are out of stock right now?
+SELECT product_id, product_name, stock_quantity
+FROM products
+WHERE stock_quantity = 0;
+ 
+4. Provide every order placed in March 2024
+SELECT order_id, customer_id, order_date, status
+FROM orders
+WHERE order_date >= '2024-03-01' AND order_date < '2024-04-01';
+ 
+5. Give the Electronics team a readable product list
+SELECT p.product_id, p.product_name, c.category_name, p.price
+FROM products p
+JOIN categories c ON p.category_id = c.category_id
+WHERE c.category_name = 'Electronics';
+ 
+6. For every order placed, provide full details covering who, when, and status/what happened
+SELECT o.order_id,
+       CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+       o.order_date,
+       o.status
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+ORDER BY o.order_date;
+ 
+ 
+/*
+  KEY PERFORMANCE INDICATORS (KPI)
+*/
+ 
+A. Provide details of completed orders - average order value, total value and count 
+
+1. WITH order_totals AS (
+  SELECT o.order_id,
+         SUM(oi.quantity * oi.unit_price) AS order_total
+  FROM orders o
+  JOIN order_items oi ON o.order_id = oi.order_id
+  WHERE o.status = 'completed'
+  GROUP BY o.order_id
+)
+Insight: There was a total revenue of completed orders of $1,779.74
+
+2. SELECT COUNT(*) AS completed_orders,
+       SUM(order_total) AS total_revenue,
+       ROUND(AVG(order_total), 2) AS avg_order_value
+  FROM order_totals;
+Insight: There is an average order value of $148.31 and 12 orders
+ 
+B. Revenue by product
+
+SELECT p.product_name,
+       SUM(oi.quantity)                 AS units_sold,
+       SUM(oi.quantity * oi.unit_price) AS revenue
+FROM order_items oi
+JOIN orders o   ON oi.order_id   = o.order_id
+JOIN products p ON oi.product_id = p.product_id
+WHERE o.status = 'completed'
+GROUP BY p.product_name
+ORDER BY revenue DESC;
+
+Insight: Stand Mixer is the top earner ($499.98 from just 2 units). The Mystery
+Novel sells the most units (5) but earns only $74.95 because of its low price. 
+This sales data shows that volume and revenue tell different stories. 
+From the analysis, Stand Mixer is the top earner with $499.98 from just 2 units. 
+The Mystery Novel sells the most units (5) but earns only $74.95 because of its low price
+ 
+
+ 
+C. Find the monthly revenue with month-over-month growth
+
+WITH monthly AS (
+  SELECT CAST(DATE_TRUNC('MONTH', o.order_date) AS DATE) AS month,
+         SUM(oi.quantity * oi.unit_price)                AS revenue
+  FROM orders o
+  JOIN order_items oi ON o.order_id = oi.order_id
+  WHERE o.status = 'completed'
+  GROUP BY 1
+)
+SELECT month,
+       revenue,
+       ROUND(100.0 * (revenue - LAG(revenue) OVER (ORDER BY month))
+             / LAG(revenue) OVER (ORDER BY month), 1) AS mom_growth_pct
+FROM monthly
+ORDER BY month;
+
+Insight: The monthly MOM are Feb -25.2%, Mar +45.5%, Apr -42.9%. 
+March has only the peak value of $559.90, and this proves how volatile the revenue is, as just one large changed the month,
+
+
+ 
+D. Revenue by state
+SELECT c.state,
+       SUM(oi.quantity * oi.unit_price) AS revenue
+FROM customers c
+JOIN orders o       ON c.customer_id = o.customer_id
+JOIN order_items oi ON o.order_id    = oi.order_id
+WHERE o.status = 'completed'
+GROUP BY c.state
+ORDER BY revenue DESC;
+
+Insight: The highest order value is from Colorado with $549.96, driven by Liam Garcia. On the other hand, Florida is the weakest
+with a value of $69.99 because Sophia's only order was returned.
+
+ 
+ E. Customers who have never placed an order 
+SELECT c.customer_id,
+       CONCAT(c.first_name, ' ', c.last_name) AS full_name,
+       c.email,
+       c.signup_date
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;
+
+Insight: Zoe Patel.
+ 
+ 
+E. Customer segmentation (CASE logic)
+
+WITH customer_value AS (
+  SELECT c.customer_id,
+         CONCAT(c.first_name, ' ', c.last_name) AS customer,
+         COALESCE(SUM(oi.quantity * oi.unit_price), 0) AS lifetime_value
+  FROM customers c
+  LEFT JOIN orders o
+         ON c.customer_id = o.customer_id AND o.status = 'completed'
+  LEFT JOIN order_items oi
+         ON o.order_id = oi.order_id
+  GROUP BY c.customer_id, c.first_name, c.last_name
+)
+SELECT customer,
+       lifetime_value,
+       CASE
+         WHEN lifetime_value >= 300 THEN 'High'
+         WHEN lifetime_value >= 100 THEN 'Mid'
+         WHEN lifetime_value >   0  THEN 'Low'
+         ELSE 'No completed purchase'
+       END AS segment
+FROM customer_value
+ORDER BY lifetime_value DESC;
+ 
+
+ 
+ 
+
+
+ 
+WHERE status = 'completed'
+GROUP BY category_name
+ORDER BY revenue DESC;
+ 
