@@ -1,51 +1,70 @@
-**RETAIL SALES ANALYSIS (DATABRICKS SQL)**
+# 🛒 Retail Sales Analysis with SQL
 
-An end-to-end SQL analysis of an online retailer's sales data. I built the schema, validated the data, and answered the questions a business team would ask about revenue, customers, and operational losses.
+> End-to-end SQL project: building a retail database, validating data quality, and turning raw orders into KPIs and business recommendations.
 
-Tools: Databricks SQL, Unity Catalog, Delta tables 
-SQL skills: joins (inner, left, anti), aggregations, CTEs, window functions (LAG, RANK, SUM() OVER), CASE segmentation, views, data validation
+<p> <img src="https://img.shields.io/badge/Databricks_SQL-FF3621?style=for-the-badge&logo=databricks&logoColor=white" alt="Databricks SQL"/> <img src="https://img.shields.io/badge/Tableau-E97627?style=for-the-badge&logo=tableau&logoColor=white" alt="Tableau"/> <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" alt="Git"/> <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/> </p>
 
-**BUSINESS PROBLEMS ANSWERED**
+---
 
-The mid-size online retailer wants to know:
+## 📌 Project Overview
+A small online retailer wants to know **what sells, who buys, and where revenue is at risk**. I built the 5-table database from scratch, checked the data before trusting it, then answered business questions at three levels: stakeholder requests, KPIs, and customer/inventory insights.
 
-1. What drives revenue: which products, categories, and regions?
-2. Which customers matter most, and who has gone quiet?
-3. How much money is lost to cancelled or returned orders, and to stock-outs?
+## 🗂️ Data Model
+```mermaid
+erDiagram
+    CATEGORIES ||--o{ PRODUCTS : contains
+    CUSTOMERS  ||--o{ ORDERS : places
+    ORDERS     ||--o{ ORDER_ITEMS : includes
+    PRODUCTS   ||--o{ ORDER_ITEMS : "sold as"
+```
+| Table | Rows | Purpose |
+|---|---|---|
+| categories | 5 | Product groupings |
+| customers | 11 | Name, city, state, signup date |
+| products | 12 | Price and stock level |
+| orders | 15 | Status: completed/returned / cancelled |
+| order_items | 20 | Line items (quantity × unit price) |
 
-**DATA STRUCTURE**
+**Business rule:** revenue counts `completed` orders only.
 
-The data used here is hypothetical and contains five (5) tables, namely;
-1. Categories
-2. Products
-3. Orders
-4. Products
-5. Customers
-6. Order Items
+## 📁 Repository Structure
+```
+├── sql/
+│   ├── 01_create_tables.sql        # schema + sample data
+│   ├── 02_data_validation.sql      # row counts, orphan keys, duplicates, price & NULL checks
+│   ├── 03_business_questions.sql   # 6 stakeholder requests
+│   └── 04_kpi_analysis.sql         # 10 KPI / insight queries
+├── docs/index.html                 # interactive dashboard + query explorer
+└── README.md
+```
+**Run it:** paste the files into a Databricks SQL editor in order (01 → 04). Replace the `CREATE CATALOG` lines if your platform doesn't use catalogs.
+
+## ✅ Data Validation (before any analysis)
+Row counts match expectations; there are **no orphaned foreign keys**, **no duplicate order IDs**, and **every charged price equals the catalog price** (no hidden discounts). Status values are limited to the three expected ones.
+
+## 📊 Key Findings
+| Metric | Result |
+|---|---|
+| Completed orders | **12** of 15 (80%) |
+| Revenue | **$1,779.74** |
+| Average order value | **$148.31** |
+| Top product by revenue | Stand Mixer: **$499.98** from only 2 units |
+| Top product by volume | Mystery Novel: 5 units, only $74.95 |
+| Best category | Home & Kitchen: $589.97 (33%) |
+| Best state | Colorado: $549.96 |
+| Monthly trend | Jan $514.93 → Feb −25.2% → Mar +45.5% → Apr −42.9% |
+| Revenue lost | $399.97 in cancelled/returned orders (20% of orders) |
+| Customers | 3 High · 2 Mid · 3 Low · 3 with no completed purchase |
+
+## 💡 Recommendations
+1. **Restock the Bluetooth Speaker.** It sold 2 units and now has 0 stock.
+2. **Bundle low-price, high-volume items** (books, yoga mats) with premium goods to lift order value.
+3. **Investigate the 20% cancel/return rate**, especially the $199.99 Espresso Machine return.
+4. **Run a welcome offer for Zoe Patel**, who signed up but never ordered, and a win-back campaign for Emma and Sophia, whose only orders were cancelled/returned.
+5. **Treat monthly trends cautiously.** With 12 orders, one big purchase swings growth by tens of percent.
+
+## 🧠 SQL Concepts Demonstrated
+`JOIN` / `LEFT JOIN` anti-joins · CTEs · `LAG()` and windowed `SUM() OVER()` · `CASE` · `GROUP BY` / `HAVING` · `DATE_TRUNC` · `COALESCE` · half-open date ranges · integrity checks
 
 
-**DATA VALIDATION**
 
-Before analysis I checked row counts, orphaned foreign keys, duplicate order IDs, valid status values,
-and whether the price charged matched the catalog price. All checks passed, with zero mismatches.
-
-**KEY FINDINGS**
-
-1.	A total of $1,779.74 revenue was made from 12 completed orders, with an average order value of $148.31	
-2.	Home & Kitchen is the top product category with about 33% of revenue, and next is Electronics with about 26% of the revenue
-3.	The Stand Mixer earns the most at $499.98 with only 2 units sold, while the Mystery Novel sells the most units (5) but earns $74.95
-4.	Revenue is concentrated and this is evident because only the top 3 customers produce about 68% of total revenue
-5.	20% of orders did not complete, putting $399.97 of revenue at risk. This is about 22% on top of what was earned
-6.	Bluetooth Speaker is out of stock despite proven demand; the orders details shows that 2 units were sold in a completed order
-7.	3 customers have no completed purchase and are a ready-made win-back list
-8.	Only 37.5% of buying customers ordered more than once
-9. Revenue swings sharply from month to month. With only 12 orders, a single large order moves the number, so this is directional rather than conclusive.
-
-**RECOMMENDATIONS**
-
-The online retailer will need to do the following:
-1. Restock the Bluetooth Speaker and set a reorder alert for any product with recent sales and low stock.
-2. Run a win-back campaign for the 3 customers with no completed purchase.
-3. Build loyalty offers for the top 3 customers to reduce revenue concentration risk.
-4. Investigate cancellations and the returned Espresso Machine order to find out whether the cause is product quality, pricing, or checkout friction.
-5. Review Books purchasing as it holds about $7.5K of stock against about $100 of revenue.
