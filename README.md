@@ -29,12 +29,12 @@ erDiagram
 
 ## 📁 Repository Structure
 ```
-├── sql/
-│   ├── 01_create_tables.sql        # schema + sample data
-│   ├── 02_data_validation.sql      # row counts, orphan keys, duplicates, price & NULL checks
-│   ├── 03_business_questions.sql   # 6 stakeholder requests
-│   └── 04_kpi_analysis.sql         # 10 KPI / insight queries
-├── docs/index.html                 # interactive dashboard + query explorer
+├── ipynb /
+│   ├── 01_create_tables.ipynb        # schema + sample data
+│   ├── 02_data_validation.ipynb       # row counts, orphan keys, duplicates, price & NULL checks
+│   ├── 03_business_questions.ipynb    # 6 stakeholder requests
+│   └── 04_kpi_analysis.ipynb          # KPI / insight queries
+├── docs/index.html                 
 └── README.md
 ```
 **Run it:** paste the files into a Databricks SQL editor in order (01 → 04). Replace the `CREATE CATALOG` lines if your platform doesn't use catalogs.
